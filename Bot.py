@@ -5,7 +5,7 @@ import datetime
 import random
 import string
 
-TOKEN = "TOKEN_KAMU_DISINI"
+TOKEN = "8692003062:AAGF-DBPJ9mPuDHpiUYJaQeWsGJo1hcoG70"
 ADMIN_ID = 0
 
 bot = telebot.TeleBot(TOKEN)
