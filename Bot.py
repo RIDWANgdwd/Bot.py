@@ -109,7 +109,7 @@ def jual(msg):
     m.row(types.KeyboardButton("Master"), types.KeyboardButton("Grandmaster"))
     m.row(types.KeyboardButton("Epic"), types.KeyboardButton("Legend"))
     m.row(types.KeyboardButton("Mythic"), types.KeyboardButton("Mythical honor"))
-        m.row(types.KeyboardButton("Mythical glory"), types.KeyboardButton("Mythical immortal"))
+    m.row(types.KeyboardButton("Mythical glory"), types.KeyboardButton("Mythical immortal"))
     m.row(types.KeyboardButton("❌ Batal"))
     bot.reply_to(msg,
         "💰 FORM JUAL AKUN ML\n"
