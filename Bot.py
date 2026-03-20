@@ -360,6 +360,7 @@ def callback(call):
 
 @bot.message_handler(commands=['beli'])
 def beli(msg):
+    state.pop(msg.from_user.id, None)
     try:
         akun_id = int(msg.text.split()[1])
     except:
