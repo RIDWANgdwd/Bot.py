@@ -6,7 +6,7 @@ import random
 import string
 
 TOKEN = "8692003062:AAGF-DBPJ9mPuDHpiUYJaQeWsGJo1hcoG70"
-ADMIN_ID = 0
+ADMIN_ID = 7879820766
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -123,7 +123,7 @@ def step_rank(msg):
         state.pop(msg.from_user.id, None)
         bot.reply_to(msg, "❌ Dibatalkan!", reply_markup=menu(msg.from_user.id))
         return
-    valid = ["Warrior","Elite","Master","Grandmaster","Epic","Legend","Mythic","Mythical Glory"]
+    valid = ["Warrior","Elite","Master","Grandmaster","Epic","Legend","Mythic","Mythical Glory","mythical immortal"]
     if msg.text not in valid:
         bot.reply_to(msg, "⚠️ Pilih rank yang tersedia!")
         return
@@ -145,7 +145,7 @@ def step_hero(msg):
         return
     try:
         hero = int(msg.text)
-        if hero < 1 or hero > 200:
+        if hero < 1 or hero > 134:
             raise ValueError
     except:
         bot.reply_to(msg, "⚠️ Masukkan angka 1-200!")
