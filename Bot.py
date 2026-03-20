@@ -1,6 +1,4 @@
-## Oke! Ini Dengan Emoji! 😄
 
-```python
 import telebot
 from telebot import types
 import sqlite3
@@ -420,4 +418,4 @@ def bukti(msg):
 @bot.message_handler(func=lambda m: m.text == "👑 Admin Panel")
 def admin_panel(msg):
     if msg.from_user.id != ADMIN_ID:
-        bot.reply_to(msg, "🚫 Bukan admi
+        bot.reply_to(msg, "🚫 Bukan admin
