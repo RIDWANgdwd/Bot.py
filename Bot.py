@@ -124,7 +124,7 @@ def step_rank(msg):
         state.pop(msg.from_user.id, None)
         bot.reply_to(msg, "❌ Dibatalkan!", reply_markup=menu(msg.from_user.id))
         return
-    valid = ["Warrior","Elite","Master","Grandmaster","Epic","Legend","Mythic","Mythical honor","Mythical Glory","mythical immortal"]
+    valid = ["Warrior","Elite","Master","Grandmaster","Epic","Legend","Mythic","Mythical honor","Mythical glory","Mythical immortal"]
     if msg.text not in valid:
         bot.reply_to(msg, "⚠️ Pilih rank yang tersedia!")
         return
