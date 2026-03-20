@@ -6,8 +6,8 @@ import datetime
 import random
 import string
 
-TOKEN = "8692003062:AAGtTYYNAfYpn-xZ2a14JduqX9uiPf-l_Us"
-ADMIN_ID = 0
+TOKEN = "8692003062:AAHU0n6yX39LNt-NgdNQXubpVf1RvXEqWqk"
+ADMIN_ID = 7879820766
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -334,7 +334,7 @@ def callback(call):
         c.execute("UPDATE akun SET status='pending' WHERE id=?", (akun_id,))
         conn.commit()
         conn.close()
-        bot.edit_message_text("🛒 STRUK ORDER\n━━━━━━━━━━━━━━━\n🆔 ID: " + tid + "\n⚔️ Akun: #" + str(akun_id) + " " + str(akun[3]) + "\n💰 Harga: Rp " + str(akun[6]) + "\n━━━━━━━━━━━━━━━\n💳 Transfer ke:\nDANA: 08123456789\nBCA: 1234567890\n━━━━━━━━━━━━━━━\nSetelah transfer ketik:\n/bayar " + tid, call.message.chat.id, call.message.message_id)
+        bot.edit_message_text("🛒 STRUK ORDER\n━━━━━━━━━━━━━━━\n🆔 ID: " + tid + "\n⚔️ Akun: #" + str(akun_id) + " " + str(akun[3]) + "\n💰 Harga: Rp " + str(akun[6]) + "\n━━━━━━━━━━━━━━━\n💳 Transfer ke:\nDANA: 085649642594\nBCA: 1234567890\n━━━━━━━━━━━━━━━\nSetelah transfer ketik:\n/bayar " + tid, call.message.chat.id, call.message.message_id)
         if ADMIN_ID != 0:
             bot.send_message(ADMIN_ID, "🔔 Ada pembeli!\nID: " + tid + "\nPembeli: " + nama + "\nAkun: #" + str(akun_id) + "\nHarga: Rp " + str(akun[6]))
     elif call.data.startswith("oke_"):
@@ -418,4 +418,163 @@ def bukti(msg):
 @bot.message_handler(func=lambda m: m.text == "👑 Admin Panel")
 def admin_panel(msg):
     if msg.from_user.id != ADMIN_ID:
-        bot.reply_to(msg, "🚫 Bukan admin
+        bot.reply_to(msg, "🚫 Bukan admin!")
+        return
+    conn = db()
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM akun WHERE status='tersedia'")
+    stok = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM akun WHERE status='menunggu_verifikasi'")
+    pending = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM trx WHERE status='menunggu_admin'")
+    bayar_pending = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM trx WHERE status='selesai'")
+    selesai = c.fetchone()[0]
+    conn.close()
+    bot.reply_to(msg, "👑 ADMIN PANEL\n━━━━━━━━━━━━━━━\n📦 Stok: " + str(stok) + "\n⏳ Pending: " + str(pending) + "\n💳 Bayar pending: " + str(bayar_pending) + "\n✅ Selesai: " + str(selesai) + "\n━━━━━━━━━━━━━━━\n/verif [ID]\n/tolak [ID]\n/konfirm [TRX]\n/kirim [TRX] [detail]\n/ban [ID]")
+
+@bot.message_handler(commands=['verif'])
+def verif(msg):
+    if msg.from_user.id != ADMIN_ID:
+        return
+    try:
+        akun_id = int(msg.text.split()[1])
+    except:
+        bot.reply_to(msg, "⚠️ Format: /verif [ID]")
+        return
+    conn = db()
+    c = conn.cursor()
+    c.execute("UPDATE akun SET status='tersedia' WHERE id=?", (akun_id,))
+    c.execute("SELECT penjual_id FROM akun WHERE id=?", (akun_id,))
+    penjual = c.fetchone()
+    conn.commit()
+    conn.close()
+    bot.reply_to(msg, "✅ Akun #" + str(akun_id) + " diverifikasi!")
+    if penjual:
+        bot.send_message(penjual[0], "✅ Akun kamu #" + str(akun_id) + " sudah di katalog!")
+
+@bot.message_handler(commands=['tolak'])
+def tolak(msg):
+    if msg.from_user.id != ADMIN_ID:
+        return
+    try:
+        akun_id = int(msg.text.split()[1])
+    except:
+        bot.reply_to(msg, "⚠️ Format: /tolak [ID]")
+        return
+    conn = db()
+    c = conn.cursor()
+    c.execute("UPDATE akun SET status='ditolak' WHERE id=?", (akun_id,))
+    c.execute("SELECT penjual_id FROM akun WHERE id=?", (akun_id,))
+    penjual = c.fetchone()
+    conn.commit()
+    conn.close()
+    bot.reply_to(msg, "❌ Akun #" + str(akun_id) + " ditolak!")
+    if penjual:
+        bot.send_message(penjual[0], "❌ Akun kamu #" + str(akun_id) + " ditolak!")
+
+@bot.message_handler(commands=['konfirm'])
+def konfirm(msg):
+    if msg.from_user.id != ADMIN_ID:
+        return
+    try:
+        tid = msg.text.split()[1]
+    except:
+        bot.reply_to(msg, "⚠️ Format: /konfirm [TRX_ID]")
+        return
+    conn = db()
+    c = conn.cursor()
+    c.execute("SELECT * FROM trx WHERE trx_id=?", (tid,))
+    trx = c.fetchone()
+    if not trx:
+        bot.reply_to(msg, "❌ Transaksi tidak ditemukan!")
+        conn.close()
+        return
+    c.execute("UPDATE trx SET status='menunggu_akun' WHERE trx_id=?", (tid,))
+    conn.commit()
+    conn.close()
+    bot.reply_to(msg, "✅ Bayar " + tid + " dikonfirmasi!\n/kirim " + tid + " [detail]")
+    bot.send_message(trx[2], "✅ Pembayaran dikonfirmasi!\nID: " + tid + "\nAkun sedang disiapkan!")
+
+@bot.message_handler(commands=['kirim'])
+def kirim(msg):
+    if msg.from_user.id != ADMIN_ID:
+        return
+    try:
+        parts = msg.text.split(None, 2)
+        tid = parts[1]
+        detail = parts[2]
+    except:
+        bot.reply_to(msg, "⚠️ Format:\n/kirim [TRX] [detail]")
+        return
+    conn = db()
+    c = conn.cursor()
+    c.execute("SELECT * FROM trx WHERE trx_id=?", (tid,))
+    trx = c.fetchone()
+    if not trx:
+        bot.reply_to(msg, "❌ Transaksi tidak ditemukan!")
+        conn.close()
+        return
+    c.execute("UPDATE trx SET status='akun_terkirim' WHERE trx_id=?", (tid,))
+    conn.commit()
+    conn.close()
+    mk = types.InlineKeyboardMarkup()
+    mk.row(types.InlineKeyboardButton("✅ Akun Oke!", callback_data="oke_" + tid), types.InlineKeyboardButton("❌ Ada Masalah", callback_data="masalah_" + tid))
+    bot.send_message(trx[2], "🎮 Detail Akun ML!\n━━━━━━━━━━━━━━━\nID: " + tid + "\n━━━━━━━━━━━━━━━\n" + detail + "\n━━━━━━━━━━━━━━━\n⚠️ Segera ganti password!\nAkun sudah sesuai?", reply_markup=mk)
+    bot.reply_to(msg, "✅ Detail akun terkirim!")
+
+@bot.message_handler(commands=['ban'])
+def ban(msg):
+    if msg.from_user.id != ADMIN_ID:
+        return
+    try:
+        target = int(msg.text.split()[1])
+    except:
+        bot.reply_to(msg, "⚠️ Format: /ban [USER_ID]")
+        return
+    tgl = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    conn = db()
+    c = conn.cursor()
+    c.execute("INSERT INTO banned VALUES (NULL,?,?)", (target, tgl))
+    conn.commit()
+    conn.close()
+    bot.reply_to(msg, "🚫 User " + str(target) + " dibanned!")
+
+@bot.message_handler(func=lambda m: m.text == "📋 Transaksi")
+def transaksi(msg):
+    conn = db()
+    c = conn.cursor()
+    c.execute("SELECT * FROM trx WHERE buyer_id=? ORDER BY id DESC LIMIT 5", (msg.from_user.id,))
+    list_trx = c.fetchall()
+    conn.close()
+    if not list_trx:
+        bot.reply_to(msg, "📋 Belum ada transaksi!", reply_markup=menu(msg.from_user.id))
+        return
+    teks = "📋 TRANSAKSI TERAKHIR\n━━━━━━━━━━━━━━━\n\n"
+    for t in list_trx:
+        teks += "🆔 ID: " + str(t[1]) + "\n💰 Harga: Rp " + str(t[6]) + "\n📊 Status: " + str(t[7]) + "\n━━━━━━━━━━━━━━━\n"
+    bot.reply_to(msg, teks, reply_markup=menu(msg.from_user.id))
+
+@bot.message_handler(func=lambda m: m.text == "👤 Profil")
+def profil(msg):
+    conn = db()
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM trx WHERE buyer_id=? AND status='selesai'", (msg.from_user.id,))
+    beli = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM akun WHERE penjual_id=? AND status='terjual'", (msg.from_user.id,))
+    jual = c.fetchone()[0]
+    conn.close()
+    bot.reply_to(msg, "👤 PROFIL KAMU\n━━━━━━━━━━━━━━━\n📛 Nama: " + msg.from_user.first_name + "\n🆔 ID: " + str(msg.from_user.id) + "\n━━━━━━━━━━━━━━━\n✅ Total Beli: " + str(beli) + "\n💰 Total Jual: " + str(jual), reply_markup=menu(msg.from_user.id))
+
+@bot.message_handler(func=lambda m: m.text == "⭐ Testimoni")
+def testimoni(msg):
+    bot.reply_to(msg, "⭐ TESTIMONI\n━━━━━━━━━━━━━━━\nBudi - Akun sesuai!\nSari - Terpercaya!\nAndi - 3x beli aman!\n━━━━━━━━━━━━━━━\nJadilah pembeli berikutnya!", reply_markup=menu(msg.from_user.id))
+
+@bot.message_handler(func=lambda m: m.text == "📞 CS")
+def cs(msg):
+    bot.reply_to(msg, "📞 CUSTOMER SERVICE\n━━━━━━━━━━━━━━━\n⏰ Jam: 08.00-22.00 WIB\n📱 Telegram: @FXT82828\n━━━━━━━━━━━━━━━\n🤖 Bot aktif 24 jam!", reply_markup=menu(msg.from_user.id))
+
+bot.delete_webhook()
+print("ML Store Bot aktif!")
+print("Ketik /id untuk dapat ID admin!")
+bot.polling(none_stop=True)
