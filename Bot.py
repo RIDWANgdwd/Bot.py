@@ -105,7 +105,6 @@ def jual(msg):
         return
     state[msg.from_user.id] = {'step': 'rank'}
     m = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    m.row(types.KeyboardButton("Warrior"), types.KeyboardButton("Elite"))
     m.row(types.KeyboardButton("Master"), types.KeyboardButton("Grandmaster"))
     m.row(types.KeyboardButton("Epic"), types.KeyboardButton("Legend"))
     m.row(types.KeyboardButton("Mythic"), types.KeyboardButton("Mythical honor"))
@@ -124,7 +123,7 @@ def step_rank(msg):
         state.pop(msg.from_user.id, None)
         bot.reply_to(msg, "❌ Dibatalkan!", reply_markup=menu(msg.from_user.id))
         return
-    valid = ["Warrior","Elite","Master","Grandmaster","Epic","Legend","Mythic","Mythical honor","Mythical glory","Mythical immortal"]
+    valid = ["Master","Grandmaster","Epic","Legend","Mythic","Mythical honor","Mythical glory","Mythical immortal"]
     if msg.text not in valid:
         bot.reply_to(msg, "⚠️ Pilih rank yang tersedia!")
         return
