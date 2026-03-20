@@ -300,7 +300,7 @@ def callback(call):
             "💰 Harga        : Rp " + str(akun[6]) + "\n"
             "━━━━━━━━━━━━━━━\n"
             "💳 Transfer ke:\n"
-            "DANA : 08123456789\n"
+            "DANA : 085649642594\n"
             "BCA  : 1234567890\n"
             "━━━━━━━━━━━━━━━\n"
             "Setelah transfer ketik:\n"
@@ -683,7 +683,7 @@ def cs(msg):
         "📞 CUSTOMER SERVICE\n"
         "━━━━━━━━━━━━━━━\n"
         "⏰ Jam    : 08.00 - 22.00 WIB\n"
-        "📱 Telegram: @adminmu\n"
+        "📱 Telegram: @FXT82828\n"
         "━━━━━━━━━━━━━━━\n"
         "🤖 Bot aktif 24 jam!",
         reply_markup=menu(msg.from_user.id))
